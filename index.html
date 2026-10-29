@@ -123,7 +123,14 @@
             <p class="q-text" id="q-text"></p>
             <div class="options" id="q-options"></div>
             <div class="open-answer" id="q-open" hidden>
-              <p class="hint">Câu hỏi tự luận.</p>
+              <label class="open-label" for="q-input">✍️ Nhập đáp án (số nguyên):</label>
+              <div class="open-row">
+                <input type="text" id="q-input" inputmode="numeric" autocomplete="off" spellcheck="false"
+                  placeholder="Ví dụ: 250">
+                <span class="open-unit" id="q-unit"></span>
+                <button type="button" class="btn btn-green btn-lg" id="btn-check">✔ Kiểm tra</button>
+              </div>
+              <p class="open-error" id="q-input-error" role="alert"></p>
             </div>
           </div>
           <figure class="q-figure" id="q-figure" hidden>

@@ -15,7 +15,7 @@
     roster: [],
     appliedText: saved && typeof saved.text === 'string' ? saved.text : '',
     settings: Object.assign(
-      { duration: 20, sound: true, noRepeat: true },
+      { duration: 10, sound: true, noRepeat: true },
       saved && saved.settings ? saved.settings : {}
     ),
     editingList: false,
@@ -28,7 +28,7 @@
     countdownTimer: null,
     lastHud: 0
   };
-  if (DURATIONS.indexOf(state.settings.duration) === -1) state.settings.duration = 20;
+  if (DURATIONS.indexOf(state.settings.duration) === -1) state.settings.duration = 10;
   state.settings.reducedMotion = true; // luôn giảm chuyển động (không còn nút bật/tắt)
   state.settings.noRepeat = true; // luôn hạn chế lặp lại: ai đã được chọn thì chờ cả lớp có lượt
 
@@ -318,7 +318,18 @@
 
     const opts = $('q-options');
     opts.innerHTML = '';
-    $('q-open').hidden = q.type !== 'open';
+    // Câu nhập số: ô nhập + đơn vị + nút Kiểm tra (khóa lại sau khi đã có đáp án)
+    $('q-open').hidden = q.type !== 'number';
+    if (q.type === 'number') {
+      const input = $('q-input');
+      input.value = qs.chosen == null ? '' : String(qs.chosen);
+      input.disabled = qs.revealed;
+      input.classList.toggle('correct', qs.revealed && qs.chosen === q.answerValue);
+      input.classList.toggle('wrong', qs.revealed && qs.chosen != null && qs.chosen !== q.answerValue);
+      $('q-unit').textContent = q.unit || '';
+      $('btn-check').hidden = qs.revealed;
+      $('q-input-error').textContent = '';
+    }
     if (q.type === 'choice') {
       q.options.forEach(function (html, i) {
         const b = document.createElement('button');
@@ -351,6 +362,19 @@
       if (q.type === 'open') {
         fb.classList.add('info');
         fb.textContent = 'Đáp án: ' + q.answerText;
+      } else if (q.type === 'number') {
+        const unit = q.unit ? ' ' + q.unit : '';
+        if (qs.chosen == null) {
+          fb.classList.add('info');
+          fb.textContent = 'Đáp án: ' + q.answerText;
+        } else if (qs.chosen === q.answerValue) {
+          fb.classList.add('good');
+          fb.textContent = '🎉 Chính xác! ' + q.answerText + '. Giỏi lắm!';
+        } else {
+          fb.classList.add('soft');
+          fb.textContent = 'Chưa đúng rồi — bạn trả lời ' + qs.chosen + unit + ', đáp án đúng là ' +
+            q.answerValue + unit + '. Cùng xem lời giải nhé!';
+        }
       } else if (qs.chosen === null) {
         fb.classList.add('info');
         fb.textContent = 'Đáp án đúng: ' + LETTERS[q.answer];
@@ -394,6 +418,36 @@
     qs.chosen = i;
     qs.revealed = true;
     if (i === q.answer) PS.Sound.correct(); else PS.Sound.gentle();
+    renderQuestion();
+    $('q-solution').scrollIntoView({ behavior: state.settings.reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+  }
+
+  /**
+   * Đọc số nguyên học sinh nhập. Chấp nhận dấu chấm/khoảng trắng phân cách hàng nghìn ("1.000", "1 000").
+   * Trả về null nếu không phải số nguyên.
+   */
+  function parseInteger(text) {
+    const s = String(text).trim();
+    if (/^-?\d+$/.test(s)) return parseInt(s, 10);
+    if (/^-?\d{1,3}([.\s]\d{3})+$/.test(s)) return parseInt(s.replace(/[.\s]/g, ''), 10);
+    return null;
+  }
+
+  function checkNumber() {
+    if (state.phase !== 'ready' || isLocked()) return;
+    const q = QUESTIONS[state.qIndex];
+    const qs = state.qState[state.qIndex];
+    if (q.type !== 'number' || qs.revealed) return;
+    const raw = $('q-input').value;
+    const v = parseInteger(raw);
+    if (v === null) {
+      $('q-input-error').textContent = raw.trim() ? 'Hãy nhập một số nguyên (ví dụ: 250).' : 'Hãy nhập đáp án trước khi kiểm tra.';
+      $('q-input').focus();
+      return;
+    }
+    qs.chosen = v;
+    qs.revealed = true;
+    if (v === q.answerValue) PS.Sound.correct(); else PS.Sound.gentle();
     renderQuestion();
     $('q-solution').scrollIntoView({ behavior: state.settings.reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
   }
@@ -607,8 +661,10 @@
       head.textContent = 'Câu ' + (i + 1) + ': ';
       li.appendChild(head);
       li.appendChild(document.createTextNode(st ? '🐧 ' + fullName(st) : 'Cả lớp'));
-      // Trắc nghiệm: sao khi chọn đúng. Tự luận: bạn đã lên trả lời thì được sao.
-      const star = q.type === 'open' ? !!st : qs.revealed && qs.chosen === q.answer;
+      // Chỉ trả lời đúng mới có sao: trắc nghiệm chọn đúng, nhập số khớp đáp án; tự luận thì bạn đã lên trả lời.
+      const star = q.type === 'number' ? qs.revealed && qs.chosen === q.answerValue
+        : q.type === 'open' ? !!st
+        : qs.revealed && qs.chosen === q.answer;
       if (star) {
         li.appendChild(document.createTextNode(' ⭐'));
       }
@@ -694,6 +750,9 @@
     $('btn-pick').onclick = pickStudent;
     $('btn-pick-locked').onclick = pickStudent;
     $('btn-reveal').onclick = reveal;
+    $('btn-check').onclick = checkNumber;
+    $('q-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); checkNumber(); } });
+    $('q-input').addEventListener('input', function () { $('q-input-error').textContent = ''; });
     $('btn-prev').onclick = function () { goTo(state.qIndex - 1); };
     $('btn-next').onclick = function () {
       if (state.qIndex === QUESTIONS.length - 1) showFinish(); else goTo(state.qIndex + 1, true);

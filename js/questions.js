@@ -5,6 +5,8 @@
  * Cách thêm câu hỏi:
  *   - Trắc nghiệm: type: 'choice', options: [A, B, C, D], answer: chỉ số đáp án đúng (0 = A).
  *   - Tự luận:     type: 'open',   answerText: đáp án hiển thị khi bấm "Hiện đáp án".
+ *   - Nhập số:     type: 'number', answerValue: số nguyên đúng, unit: đơn vị hiển thị cạnh ô nhập,
+ *                  answerText: đáp án hiển thị khi bấm "Hiện đáp án".
  *   - figure: đường dẫn ảnh trong thư mục assets (hoặc null).
  */
 window.PS = window.PS || {};
@@ -67,7 +69,9 @@ window.PS = window.PS || {};
       note: { label: 'Tính chất', text: 'Đường thẳng đi qua trung điểm một cạnh của tam giác và song song với cạnh thứ hai thì đi qua trung điểm cạnh thứ ba.' }
     },
     {
-      type: 'open',
+      type: 'number',
+      answerValue: 1000,
+      unit: 'm',
       text: 'Cho B và C là hai điểm cách nhau bởi một hồ nước như hình vẽ, với D, E lần lượt là trung điểm của AB và AC. ' +
             'Biết DE = 500 m. Tính khoảng cách giữa hai điểm B và C.',
       figure: 'assets/cau4-ho-nuoc.jpg',
