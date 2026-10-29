@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Penguin Slide — Đua chim cánh cụt | Toán 8</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body data-phase="setup">
+  <div class="snow" aria-hidden="true"></div>
+
+  <!-- ============ MÀN HÌNH CÀI ĐẶT ============ -->
+  <section id="screen-setup" class="screen" aria-labelledby="setup-title">
+    <!-- Ký hiệu toán học trôi nhẹ trên nền -->
+    <div class="math-float" aria-hidden="true">
+      <span style="--x:4%;--y:18%;--d:0s">π</span>
+      <span style="--x:12%;--y:72%;--d:-3s">√x</span>
+      <span style="--x:23%;--y:40%;--d:-6s">△</span>
+      <span style="--x:35%;--y:86%;--d:-1s">∠A</span>
+      <span style="--x:48%;--y:8%;--d:-4s">x²</span>
+      <span style="--x:58%;--y:92%;--d:-7s">÷</span>
+      <span style="--x:67%;--y:30%;--d:-2s">∥</span>
+      <span style="--x:78%;--y:80%;--d:-5s">½</span>
+      <span style="--x:88%;--y:14%;--d:-8s">×</span>
+      <span style="--x:95%;--y:55%;--d:-3.5s">=</span>
+    </div>
+
+    <div class="home-tools">
+      <button type="button" class="icon-btn" data-action="sound" title="Bật/tắt âm thanh"
+        aria-label="Bật/tắt âm thanh">🔊</button>
+      <button type="button" class="btn btn-blue btn-sm" data-action="fullscreen" title="Bật/tắt toàn màn hình">⛶ Toàn
+        màn hình</button>
+    </div>
+
+    <header class="hero">
+      <canvas id="hero-penguin" width="220" height="220" aria-hidden="true"></canvas>
+      <div class="hero-text">
+        <h1 id="setup-title" class="logo"><span class="logo-top">PENGUIN</span> <span class="logo-bottom">SLIDE</span>
+        </h1>
+        <p class="logo-ribbon">🏆 THỬ THÁCH ÔN TẬP TOÁN 8</p>
+      </div>
+    </header>
+
+    <main class="home-main">
+      <!-- Bảng đen: chủ đề ôn tập (trái) + hình vẽ phấn (phải) -->
+      <div class="board">
+        <div class="board-text">
+          <p class="board-kicker">📚 ÔN TẬP TỔNG KẾT · TOÁN 8</p>
+          <h2 class="board-title">Đường trung bình<br>của tam giác</h2>
+          <svg class="chalk-underline" viewBox="0 0 300 16" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M4 10 C 60 2, 120 15, 180 7 S 270 4, 296 9" />
+          </svg>
+          <div class="start-row">
+            <button type="button" class="btn btn-green btn-xl" id="btn-start">▶ BẮT ĐẦU ÔN TẬP</button>
+            <button type="button" class="btn btn-blue btn-xl" id="btn-continue" hidden>⏯ TIẾP TỤC</button>
+          </div>
+        </div>
+        <svg class="board-figure" viewBox="0 0 240 186" aria-hidden="true">
+          <path d="M120 22 L24 164 L216 164 Z" class="chalk" />
+          <path d="M72 93 L168 93" class="chalk chalk-yellow" stroke-dasharray="8 6" />
+          <circle cx="72" cy="93" r="4.5" class="chalk-dot" />
+          <circle cx="168" cy="93" r="4.5" class="chalk-dot" />
+          <path d="M44 124 l8 4 M96 52 l8 4" class="chalk chalk-tick" />
+          <path d="M188 128 l-8 4 M144 52 l-8 4" class="chalk chalk-tick" />
+          <text x="114" y="15">A</text>
+          <text x="6" y="178">B</text>
+          <text x="220" y="178">C</text>
+          <text x="50" y="92">M</text>
+          <text x="174" y="92">N</text>
+        </svg>
+      </div>
+
+      <!-- Thanh điều khiển: lớp học · thời lượng · âm thanh -->
+      <div class="home-bar">
+        <button type="button" class="class-btn" id="btn-class" aria-haspopup="dialog">
+          <span class="class-btn-icon" aria-hidden="true">👥</span>
+          <span class="class-btn-text">
+            <b>Lớp <span class="js-class-name"></span></b>
+            <small><span class="js-student-count">0 bạn</span> · Xem danh sách ›</small>
+          </span>
+        </button>
+        <fieldset class="bar-group">
+          <legend>⏱ Thời lượng cuộc đua</legend>
+          <div class="chips" id="duration-chips" role="radiogroup" aria-label="Thời lượng cuộc đua"></div>
+        </fieldset>
+        <label class="toggle bar-toggle"><input type="checkbox" id="opt-sound"><span class="switch"></span> 🔊 Âm
+          thanh</label>
+      </div>
+    </main>
+  </section>
+
+  <!-- ============ MÀN HÌNH CÂU HỎI ============ -->
+  <section id="screen-quiz" class="screen" hidden aria-label="Câu hỏi">
+    <header class="topbar">
+      <div class="logo-small">🐧 PENGUIN SLIDE</div>
+      <nav class="q-dots" id="q-dots" aria-label="Chọn câu hỏi"></nav>
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" data-action="sound" title="Bật/tắt âm thanh"
+          aria-label="Bật/tắt âm thanh">🔊</button>
+        <button type="button" class="icon-btn" data-action="fullscreen" title="Toàn màn hình"
+          aria-label="Toàn màn hình">⛶</button>
+        <button type="button" class="icon-btn" id="btn-to-setup" title="Quay lại cài đặt"
+          aria-label="Quay lại cài đặt">⚙️</button>
+      </div>
+    </header>
+
+    <div class="quiz-layout">
+      <article class="card question-card">
+        <div class="q-head">
+          <span class="q-label" id="q-label">Câu 1</span>
+          <button type="button" class="link-btn" id="btn-reset-q" title="Đặt lại câu này">↺ Làm lại câu này</button>
+        </div>
+        <!-- Câu hỏi được ẩn cho tới khi đã chọn được bạn trả lời -->
+        <div class="q-locked" id="q-locked" hidden>
+          <div class="q-locked-icon" aria-hidden="true">🔒</div>
+          <p class="q-locked-title" id="q-locked-title">Câu hỏi đang chờ…</p>
+          <button type="button" class="btn btn-purple btn-xl" id="btn-pick-locked">🐧 CHỌN BẠN TRẢ LỜI</button>
+        </div>
+        <div class="q-body">
+          <div class="q-text-wrap">
+            <p class="q-text" id="q-text"></p>
+            <div class="options" id="q-options"></div>
+            <div class="open-answer" id="q-open" hidden>
+              <p class="hint">Câu hỏi tự luận.</p>
+            </div>
+          </div>
+          <figure class="q-figure" id="q-figure" hidden>
+            <img id="q-img" alt="">
+          </figure>
+        </div>
+        <div class="feedback" id="q-feedback" role="status" aria-live="polite"></div>
+        <section class="solution" id="q-solution" hidden>
+          <h3>💡 Lời giải</h3>
+          <div id="q-solution-body"></div>
+        </section>
+      </article>
+
+      <aside class="card answerer-card">
+        <h2 class="card-title">Người trả lời</h2>
+        <canvas id="answerer-avatar" width="160" height="160" aria-hidden="true"></canvas>
+        <p class="answerer-name" id="answerer-name">Chưa chọn</p>
+        <button type="button" class="btn btn-purple btn-lg" id="btn-pick">🐧 CHỌN BẠN TRẢ LỜI</button>
+        <p class="hint center">Bấm để bắt đầu cuộc đua chim cánh cụt.</p>
+      </aside>
+    </div>
+
+    <footer class="quiz-nav">
+      <button type="button" class="btn btn-ghost btn-lg" id="btn-prev">← Câu trước</button>
+      <button type="button" class="btn btn-yellow btn-lg" id="btn-reveal">💡 Hiện đáp án</button>
+      <button type="button" class="btn btn-blue btn-lg" id="btn-next">Câu tiếp →</button>
+    </footer>
+  </section>
+
+  <!-- ============ MÀN HÌNH ĐUA ============ -->
+  <section id="screen-race" class="screen" hidden aria-label="Cuộc đua">
+    <header class="race-hud">
+      <div class="logo-small">🐧 PENGUIN SLIDE</div>
+      <div class="race-status" id="race-status">Sẵn sàng</div>
+      <div class="race-timer" aria-live="off"><span aria-hidden="true">⏱</span> <span id="race-time">00:20</span></div>
+      <ol class="race-leaders" id="race-leaders" aria-label="Bảng thứ hạng"></ol>
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" data-action="sound" title="Bật/tắt âm thanh"
+          aria-label="Bật/tắt âm thanh">🔊</button>
+        <button type="button" class="icon-btn" data-action="fullscreen" title="Toàn màn hình"
+          aria-label="Toàn màn hình">⛶</button>
+        <button type="button" class="btn btn-red btn-sm" id="btn-stop">■ Dừng</button>
+      </div>
+    </header>
+    <div class="minimap-wrap">
+      <canvas id="race-minimap" role="img" aria-label="Bản đồ nhỏ: vị trí của tất cả các bạn trên đường đua"></canvas>
+    </div>
+    <div class="race-stage" id="race-stage">
+      <canvas id="race-canvas"></canvas>
+      <div class="countdown" id="countdown" hidden aria-live="assertive"><span id="countdown-num">3</span></div>
+
+      <div class="result" id="result" hidden role="dialog" aria-modal="true" aria-labelledby="result-name">
+        <canvas class="confetti" id="confetti"></canvas>
+        <div class="result-card">
+          <!-- Sân khấu: tia sáng + ánh đèn + nhân vật -->
+          <div class="result-stage" aria-hidden="true">
+            <div class="rays"></div>
+            <span class="sparkle" style="--x:14%;--y:28%;--d:0s">✦</span>
+            <span class="sparkle" style="--x:84%;--y:22%;--d:-0.8s">✦</span>
+            <span class="sparkle" style="--x:24%;--y:72%;--d:-1.6s">★</span>
+            <span class="sparkle" style="--x:76%;--y:68%;--d:-2.2s">★</span>
+            <div class="result-spot"></div>
+            <canvas id="result-avatar" width="220" height="220"></canvas>
+          </div>
+          <div class="result-body">
+            <p class="result-ribbon">⭐ Bạn đã được chọn! ⭐</p>
+            <p class="result-name" id="result-name"></p>
+            <p class="result-short" id="result-short"></p>
+            <p class="result-msg" id="result-msg">Đến lượt bạn chinh phục thử thách Toán học!</p>
+            <div class="btn-row">
+              <button type="button" class="btn btn-blue btn-lg" id="btn-again">🔁 Lượt tiếp theo</button>
+              <button type="button" class="btn btn-green btn-lg" id="btn-answer">📖 Xem câu hỏi</button>
+              <button type="button" class="btn btn-ghost btn-lg" id="btn-result-setup">⚙️ Quay lại cài đặt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MÀN HÌNH HOÀN THÀNH ============ -->
+  <section id="screen-finish" class="screen" hidden aria-labelledby="finish-title">
+    <div class="card finish-card">
+      <canvas id="finish-avatar" width="200" height="200" aria-hidden="true"></canvas>
+      <h1 id="finish-title" class="finish-title">🎉 Hoàn thành thử thách!</h1>
+      <p class="finish-quote">“Mỗi bạn đều là một ngôi sao. Cùng nhau học tốt — Cùng nhau tỏa sáng!”</p>
+      <ul class="summary" id="summary"></ul>
+      <div class="btn-row">
+        <button type="button" class="btn btn-green btn-lg" id="btn-replay">🔄 Chơi lại từ đầu</button>
+        <button type="button" class="btn btn-ghost btn-lg" id="btn-finish-setup">⚙️ Quay lại cài đặt</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hộp thoại xác nhận dùng chung -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-card" role="alertdialog" aria-modal="true" aria-labelledby="modal-title"
+      aria-describedby="modal-text">
+      <h2 id="modal-title"></h2>
+      <p id="modal-text"></p>
+      <div class="btn-row">
+        <button type="button" class="btn btn-green" id="modal-ok">OK</button>
+        <button type="button" class="btn btn-ghost" id="modal-cancel">Hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danh sách lớp: chỉ mở khi bấm nút "Lớp 8A3" -->
+  <div class="modal class-modal" id="class-modal" hidden>
+    <div class="modal-card class-modal-card" role="dialog" aria-modal="true" aria-labelledby="class-modal-title">
+      <header class="class-modal-head">
+        <h2 id="class-modal-title">👥 Lớp <span class="js-class-name"></span></h2>
+        <span class="count-badge js-student-count">0 bạn</span>
+        <button type="button" class="icon-btn" id="btn-class-close" aria-label="Đóng danh sách">✕</button>
+      </header>
+      <ol class="roster-grid" id="roster-grid" aria-label="Danh sách học sinh"></ol>
+      <div class="list-editor" id="list-editor" hidden>
+        <label class="hint" for="student-input">Mỗi dòng một bạn (họ và tên đầy đủ):</label>
+        <textarea id="student-input" rows="12" spellcheck="false"></textarea>
+      </div>
+      <footer class="btn-row">
+        <button type="button" class="btn btn-ghost" id="btn-edit-list">✏️ Sửa danh sách</button>
+        <button type="button" class="btn btn-ghost" id="btn-clear-list" hidden>🗑️ Xóa danh sách</button>
+        <button type="button" class="btn btn-green" id="btn-done-list" hidden>✔ Lưu danh sách</button>
+        <button type="button" class="btn btn-blue" id="btn-class-ok">Đóng</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Script thường (không dùng ES module) để mở trực tiếp file index.html, không cần server -->
+  <script src="js/penguin.js"></script>
+  <script src="js/students.js"></script>
+  <script src="js/picker.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/race.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
