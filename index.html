@@ -87,57 +87,51 @@
     </header>
 
     <div class="proof-layout">
+      <!-- Phía trên: đề bài + hình vẽ; phía dưới: các thẻ lập luận chi tiết -->
       <article class="card proof-sheet">
-        <h2 class="card-title">📄 Phiếu học tập</h2>
-        <p class="proof-task" id="proof-task"></p>
+        <div class="proof-sheet-text">
+          <h2 class="card-title">📄 Phiếu học tập</h2>
+          <p class="proof-task" id="proof-task"></p>
+        </div>
         <div class="theorem">
-          <div class="theorem-row">
-            <svg class="proof-figure" viewBox="0 0 360 262" role="img"
-              aria-label="Tam giác ABC; M, N, P lần lượt là trung điểm của AB, AC, BC">
-              <path d="M90 30 L30 230 L330 230 Z" class="fig-line" />
-              <path d="M60 130 L210 130 L180 230" class="fig-mid" />
-              <path d="M68.3 78 L81.7 82 M38.3 178 L51.7 182" class="fig-tick" />
-              <path
-                d="M152.2 72.7 L143.2 83.5 M156.8 76.5 L147.8 87.3 M272.2 172.7 L263.2 183.5 M276.8 176.5 L267.8 187.3"
-                class="fig-tick" />
-              <path d="M100 225 L110 235 M110 225 L100 235 M250 225 L260 235 M260 225 L250 235" class="fig-tick" />
-              <circle cx="60" cy="130" r="4" class="fig-dot" />
-              <circle cx="210" cy="130" r="4" class="fig-dot" />
-              <circle cx="180" cy="230" r="4" class="fig-dot" />
-              <text x="84" y="22">A</text>
-              <text x="12" y="248">B</text>
-              <text x="336" y="248">C</text>
-              <text x="38" y="134">M</text>
-              <text x="218" y="128">N</text>
-              <text x="173" y="254">P</text>
-            </svg>
-          </div>
+          <svg class="proof-figure" viewBox="0 0 360 262" role="img"
+            aria-label="Tam giác ABC; M, N, P lần lượt là trung điểm của AB, AC, BC">
+            <path d="M90 30 L30 230 L330 230 Z" class="fig-line" />
+            <path d="M60 130 L210 130 L180 230" class="fig-mid" />
+            <path d="M68.3 78 L81.7 82 M38.3 178 L51.7 182" class="fig-tick" />
+            <path
+              d="M152.2 72.7 L143.2 83.5 M156.8 76.5 L147.8 87.3 M272.2 172.7 L263.2 183.5 M276.8 176.5 L267.8 187.3"
+              class="fig-tick" />
+            <path d="M100 225 L110 235 M110 225 L100 235 M250 225 L260 235 M260 225 L250 235" class="fig-tick" />
+            <circle cx="60" cy="130" r="4" class="fig-dot" />
+            <circle cx="210" cy="130" r="4" class="fig-dot" />
+            <circle cx="180" cy="230" r="4" class="fig-dot" />
+            <text x="84" y="22">A</text>
+            <text x="12" y="248">B</text>
+            <text x="336" y="248">C</text>
+            <text x="38" y="134">M</text>
+            <text x="218" y="128">N</text>
+            <text x="173" y="254">P</text>
+          </svg>
         </div>
       </article>
 
       <section class="card proof-board" aria-labelledby="proof-board-title">
-        <h2 class="proof-board-title" id="proof-board-title">Thẻ lập luận – chọn vị trí để sắp xếp</h2>
-        <p class="hint">Kéo thả thẻ hoặc bấm ▲ ▼ để đổi vị trí, rồi bấm <strong>Kiểm tra</strong>.</p>
-        <ol class="proof-list" id="proof-list" aria-label="Các bước chứng minh"></ol>
-        <div class="feedback" id="proof-feedback" role="status" aria-live="polite"></div>
-        <div class="btn-row">
-          <button type="button" class="btn btn-green btn-lg" id="btn-proof-check">✔ Kiểm tra</button>
-          <button type="button" class="btn btn-ghost btn-lg" id="btn-proof-shuffle">🔀 Xáo trộn lại</button>
-          <button type="button" class="btn btn-yellow btn-lg" id="btn-proof-reveal">💡 Xem đáp án</button>
+        <div class="proof-board-head">
+          <h2 class="proof-board-title" id="proof-board-title">Thẻ lập luận – chọn vị trí để sắp xếp</h2>
+          <p class="hint">Kéo thả thẻ hoặc bấm ▲ ▼ để đổi vị trí, rồi bấm <strong>Kiểm tra</strong>.</p>
         </div>
-      </section>
-
-      <section class="card proof-solution" id="proof-solution" hidden aria-labelledby="proof-solution-title">
-        <h2 class="card-title" id="proof-solution-title">💡 Bài chứng minh hoàn chỉnh</h2>
-        <table class="proof-table">
-          <thead>
-            <tr>
-              <th scope="col">Bước</th>
-              <th scope="col">Lập luận</th>
-            </tr>
-          </thead>
-          <tbody id="proof-table-body"></tbody>
-        </table>
+        <!-- Kết quả kiểm tra: ngay trên danh sách thẻ (luôn chừa sẵn chỗ để thẻ không bị xê dịch) -->
+        <div class="feedback" id="proof-feedback" role="status" aria-live="polite"></div>
+        <ol class="proof-list" id="proof-list" aria-label="Các bước chứng minh"></ol>
+        <!-- Thanh thao tác dính ở đáy màn hình khi danh sách thẻ dài hơn màn hình -->
+        <div class="proof-actions">
+          <div class="btn-row">
+            <button type="button" class="btn btn-green btn-lg" id="btn-proof-check">✔ Kiểm tra</button>
+            <button type="button" class="btn btn-ghost btn-lg" id="btn-proof-shuffle">🔀 Xáo trộn lại</button>
+            <button type="button" class="btn btn-yellow btn-lg" id="btn-proof-reveal">💡 Xem đáp án</button>
+          </div>
+        </div>
       </section>
     </div>
   </section>

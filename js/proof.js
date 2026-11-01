@@ -2,52 +2,67 @@
  * Phần "Chứng minh định lý": sắp xếp các thẻ lập luận theo đúng trình tự chứng minh
  * định lý đường trung bình của tam giác (lấy từ "phiếu trò chơi.docx").
  * Đổi chỗ thẻ bằng nút ▲/▼ hoặc kéo thả (chuột/cảm ứng).
- * Các trường card/detail là HTML do giáo viên soạn (nội dung tin cậy).
+ * Mỗi thẻ là một bước chứng minh đầy đủ (lines: từng dòng lập luận, HTML do giáo viên soạn — nội dung tin cậy).
+ * Màn hình rộng: danh sách thẻ cuộn bên trong khung riêng (#proof-list), phần còn lại của bố cục đứng yên.
+ *
+ * Cấu trúc một hàng (render):
+ *   li.step-row [.ok | .bad]
+ *     span.step-num                 số thứ tự vị trí (1…5) — nằm trên "đường ray" nối các bước
+ *     div.step-card
+ *       span.step-letter            tên thẻ (A…E) để cả lớp gọi tên khi thảo luận;
+ *                                   trên cảm ứng chỉ kéo được từ đây để ngón tay vẫn cuộn được danh sách
+ *       div.step-text               nội dung lập luận
+ *       span.step-status            ✓ / ✕ sau khi kiểm tra (không chỉ dựa vào màu)
+ *     div.step-arrows               nút ▲ ▼
  */
 window.PS = window.PS || {};
 
 (function () {
   const half = '<span class="frac"><span>1</span><span>2</span></span>';
   const frac = function (a, b) { return '<span class="frac"><span>' + a + '</span><span>' + b + '</span></span>'; };
+  // Biểu thức toán không bị ngắt giữa chừng khi xuống dòng (vd. không tách "AM =" và "MB")
+  const m = function (s) { return '<span class="nowrap">' + s + '</span>'; };
 
   PS.PROOF = {
     task: 'Hãy sắp xếp các bước chứng minh sau theo trình tự hợp lý để hoàn thành bài chứng minh ' +
       'định lý đường trung bình của tam giác.',
-    // Thẻ theo thứ tự in trên phiếu (A → E)
+    // Thẻ theo thứ tự in trên phiếu (A → E). Mỗi phần tử của lines là một ý trọn vẹn (một dòng);
+    // dòng bắt đầu bằng "• " được thụt vào như một ý con.
     steps: [
       {
         id: 'A',
-        card: 'MN = BP và BP = ' + half + 'BC',
-        detail: ['Suy ra: MN = BP (tính chất)', 'và BP = ' + half + 'BC (P là trung điểm của BC)']
+        lines: [
+          'Suy ra: ' + m('MN = BP') + ' (tính chất).',
+          'và ' + m('BP = ' + half + 'BC') + ' (P là trung điểm của BC).'
+        ]
       },
       {
         id: 'B',
-        card: 'Lấy P là trung điểm BC, chứng minh NP // AB',
-        detail: ['Lấy điểm P là trung điểm của BC,', 'chứng minh tương tự ta có: NP // AB']
+        lines: [
+          'Lấy P là trung điểm của BC.',
+          'Chứng minh tương tự, ta có: ' + m('NP // AB') + '.'
+        ]
       },
       {
         id: 'C',
-        card: 'Kết luận MN = ' + half + 'BC',
-        detail: ['Vậy MN = ' + half + 'BC (điều phải chứng minh).']
+        lines: ['Vậy ' + m('MN = ' + half + 'BC') + ' (điều phải chứng minh).']
       },
       {
         id: 'D',
-        card: 'Từ giả thiết, áp dụng Thalès đảo suy ra MN // BC',
-        detail: [
-          'Xét tam giác ABC có: M, N lần lượt là trung điểm của AB, AC (gt)',
-          'suy ra: AM = MB, AN = NC (tính chất)',
-          'nên ' + frac('AM', 'MB') + ' = ' + frac('AN', 'NC') + ' (= 1)',
-          'Vậy MN // BC (theo định lý Thalès đảo)'
+        lines: [
+          'Xét tam giác ABC có M, N lần lượt là trung điểm của AB, AC (gt).',
+          'Suy ra: ' + m('AM = MB') + ', ' + m('AN = NC') + ' (tính chất)',
+          'nên ' + m(frac('AM', 'MB') + ' = ' + frac('AN', 'NC') + ' (= 1)') + '.',
+          'Vậy ' + m('MN // BC') + ' (định lý Thalès đảo).'
         ]
       },
       {
         id: 'E',
-        card: 'MNPB là hình bình hành',
-        detail: [
+        lines: [
           'Xét tứ giác MNPB có:',
-          'MN // BP (chứng minh trên)',
-          'NP // MB (chứng minh trên)',
-          'Suy ra: MNPB là hình bình hành (dấu hiệu nhận biết)'
+          '• ' + m('MN // BP') + ' (chứng minh trên)',
+          '• ' + m('NP // MB') + ' (chứng minh trên)',
+          'Suy ra: MNPB là hình bình hành (dấu hiệu nhận biết).'
         ]
       }
     ],
@@ -100,14 +115,34 @@ window.PS = window.PS || {};
 
       const card = document.createElement('div');
       card.className = 'step-card';
+
       const letter = document.createElement('span');
       letter.className = 'step-letter';
       letter.textContent = id;
-      const text = document.createElement('span');
+      letter.setAttribute('aria-label', 'Thẻ ' + id);
+
+      const text = document.createElement('div');
       text.className = 'step-text';
-      text.innerHTML = byId[id].card;
+      byId[id].lines.forEach(function (line) {
+        const p = document.createElement('p');
+        if (line.indexOf('• ') === 0) { p.className = 'sub'; line = line.slice(2); }
+        p.innerHTML = line;
+        text.appendChild(p);
+      });
+
       card.appendChild(letter);
       card.appendChild(text);
+
+      if (st.marks) {
+        const ok = st.marks[i];
+        const status = document.createElement('span');
+        status.className = 'step-status';
+        status.setAttribute('role', 'img');
+        status.setAttribute('aria-label', ok ? 'Đúng vị trí' : 'Chưa đúng vị trí');
+        status.textContent = ok ? '✓' : '✕';
+        card.appendChild(status);
+      }
+
       if (!st.solved) {
         card.title = 'Kéo thả để đổi vị trí';
         card.addEventListener('pointerdown', onPointerDown);
@@ -128,7 +163,6 @@ window.PS = window.PS || {};
     });
     $('btn-proof-check').disabled = st.solved;
     $('btn-proof-reveal').disabled = st.solved;
-    $('proof-solution').hidden = !st.solved;
   }
 
   function arrowBtn(dir, i, edge) {
@@ -141,30 +175,6 @@ window.PS = window.PS || {};
     b.disabled = edge || st.solved;
     b.onclick = function () { move(i, dir === 'up' ? -1 : 1); };
     return b;
-  }
-
-  function renderSolution() {
-    const tbody = $('proof-table-body');
-    tbody.innerHTML = '';
-    DATA.answer.forEach(function (id, i) {
-      const tr = document.createElement('tr');
-      const th = document.createElement('th');
-      th.scope = 'row';
-      th.textContent = i + 1;
-      const td = document.createElement('td');
-      const tag = document.createElement('span');
-      tag.className = 'step-letter';
-      tag.textContent = id;
-      td.appendChild(tag);
-      byId[id].detail.forEach(function (line) {
-        const p = document.createElement('p');
-        p.innerHTML = line;
-        td.appendChild(p);
-      });
-      tr.appendChild(th);
-      tr.appendChild(td);
-      tbody.appendChild(tr);
-    });
   }
 
   function setFeedback(kind, text) {
@@ -204,11 +214,12 @@ window.PS = window.PS || {};
       setFeedback('good', '🎉 Chính xác! Thứ tự đúng: ' + DATA.answer.join(' → ') + '. Giỏi lắm!');
     } else {
       PS.Sound.gentle();
-      setFeedback('soft', 'Đúng ' + n + '/' + st.order.length + ' vị trí — hãy đổi chỗ các thẻ màu cam rồi thử lại nhé!');
+      setFeedback('soft', 'Đúng ' + n + '/' + st.order.length + ' vị trí — hãy đổi chỗ các thẻ có dấu ✕ rồi thử lại nhé!');
     }
     render();
   }
 
+  /** Xếp các thẻ về đúng thứ tự: các thẻ đúng thứ tự chính là bài chứng minh hoàn chỉnh. */
   function reveal() {
     if (st.solved) return;
     st.order = DATA.answer.slice();
@@ -216,7 +227,7 @@ window.PS = window.PS || {};
     st.solved = true;
     st.revealed = true;
     PS.Sound.correct();
-    setFeedback('info', 'Thứ tự đúng: ' + DATA.answer.join(' → ') + '. Cùng xem lại bài chứng minh nhé!');
+    setFeedback('info', 'Thứ tự đúng: ' + DATA.answer.join(' → ') + '. Cùng đọc lại bài chứng minh nhé!');
     render();
   }
 
@@ -231,31 +242,58 @@ window.PS = window.PS || {};
   }
 
   // ------------------------------------------------------------------ kéo thả (Pointer Events)
+  // Màn rộng: danh sách thẻ tự cuộn bên trong khung; màn hẹp: cả trang cuộn.
+  // Vị trí lưu theo toạ độ đã cộng độ cuộn để vẫn đúng khi tự cuộn trong lúc kéo.
+  const EDGE = 90; // px: kéo tới gần mép trên/dưới vùng cuộn thì tự cuộn
+
+  /** Vùng đang cuộn: chính danh sách thẻ nếu nó có thanh cuộn riêng, ngược lại là cả trang (null). */
+  function getScroller() {
+    const list = $('proof-list');
+    return getComputedStyle(list).overflowY === 'auto' ? list : null;
+  }
+
+  function scrollPos() {
+    return drag && drag.scroller ? drag.scroller.scrollTop : window.scrollY;
+  }
+
   function onPointerDown(e) {
     if (st.solved || drag || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    // Cảm ứng / bút: chỉ kéo từ ô chữ cái (A…E) để ngón tay vẫn cuộn được khi chạm vào thân thẻ
+    if (e.pointerType !== 'mouse' && !e.target.closest('.step-letter')) return;
     const cards = Array.prototype.slice.call(document.querySelectorAll('#proof-list .step-card'));
     const from = cards.indexOf(e.currentTarget);
     if (from === -1) return;
-    const rects = cards.map(function (c) { return c.getBoundingClientRect(); });
+    const scroller = getScroller();
+    const sy = scroller ? scroller.scrollTop : window.scrollY;
+    const rects = cards.map(function (c) {
+      const r = c.getBoundingClientRect();
+      return { top: r.top + sy, bottom: r.bottom + sy, height: r.height };
+    });
     // Khoảng dịch chuyển của các thẻ bị đẩy = chiều cao thẻ kéo + khoảng cách giữa hai hàng
     const gap = rects.length > 1 ? rects[1].top - rects[0].bottom : 0;
     drag = {
-      el: e.currentTarget, cards: cards, rects: rects, from: from, to: from,
-      startY: e.clientY, pointerId: e.pointerId, moved: false,
-      shift: rects[from].height + gap
+      el: e.currentTarget, cards: cards, rects: rects, from: from, to: from, scroller: scroller,
+      startY: e.clientY + sy, clientY: e.clientY, pointerId: e.pointerId, moved: false,
+      shift: rects[from].height + gap, raf: 0
     };
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* con trỏ không hợp lệ: vẫn kéo được trong thẻ */ }
   }
 
   function onPointerMove(e) {
     if (!drag || e.pointerId !== drag.pointerId) return;
-    const dy = e.clientY - drag.startY;
-    if (!drag.moved && Math.abs(dy) < 6) return;
+    drag.clientY = e.clientY;
+    if (!drag.moved && Math.abs(e.clientY + scrollPos() - drag.startY) < 6) return;
     if (!drag.moved) {
       drag.moved = true;
       drag.el.classList.add('dragging');
       $('proof-list').classList.add('sorting');
+      drag.raf = requestAnimationFrame(autoScroll);
     }
+    updateDrag();
+  }
+
+  function updateDrag() {
+    const dy = drag.clientY + scrollPos() - drag.startY;
     drag.el.style.transform = 'translateY(' + dy + 'px)';
     const r0 = drag.rects[drag.from];
     const center = r0.top + r0.height / 2 + dy;
@@ -273,10 +311,38 @@ window.PS = window.PS || {};
     });
   }
 
+  /** Tự cuộn khi kéo thẻ tới gần mép trên hoặc mép dưới của vùng cuộn (danh sách thẻ hoặc cả trang). */
+  function autoScroll() {
+    if (!drag) return;
+    let top = 0;
+    let bottom;
+    if (drag.scroller) {
+      const r = drag.scroller.getBoundingClientRect();
+      top = r.top;
+      bottom = r.bottom;
+    } else {
+      const bar = document.querySelector('.proof-actions').getBoundingClientRect();
+      bottom = Math.min(window.innerHeight, bar.top);
+    }
+    const edge = Math.min(EDGE, (bottom - top) / 4);
+    let v = 0;
+    if (drag.clientY < top + edge) v = -(top + edge - drag.clientY) / 5;
+    else if (drag.clientY > bottom - edge) v = (drag.clientY - (bottom - edge)) / 5;
+    if (v) {
+      const before = scrollPos();
+      v = Math.max(-18, Math.min(18, v));
+      if (drag.scroller) drag.scroller.scrollTop += v;
+      else window.scrollBy(0, v);
+      if (scrollPos() !== before) updateDrag();
+    }
+    drag.raf = requestAnimationFrame(autoScroll);
+  }
+
   function onPointerUp(e) {
     if (!drag || e.pointerId !== drag.pointerId) return;
     const d = drag;
     drag = null;
+    cancelAnimationFrame(d.raf);
     $('proof-list').classList.remove('sorting');
     if (e.type === 'pointerup' && d.moved && d.to !== d.from) {
       const id = st.order.splice(d.from, 1)[0];
@@ -294,7 +360,6 @@ window.PS = window.PS || {};
       $('btn-proof-check').onclick = check;
       $('btn-proof-reveal').onclick = reveal;
       $('btn-proof-shuffle').onclick = shuffle;
-      renderSolution();
       render();
     },
     /** Gọi mỗi khi mở màn hình để vẽ lại (giữ nguyên tiến độ đang làm). */
