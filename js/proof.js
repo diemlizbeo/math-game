@@ -163,7 +163,30 @@ window.PS = window.PS || {};
     });
     $('btn-proof-check').disabled = st.solved;
     $('btn-proof-reveal').disabled = st.solved;
+    fit();
   }
+
+  /**
+   * Co nhỏ dần chữ trong thẻ (biến --fit) cho tới khi cả 5 thẻ nằm gọn trong khung, không phải cuộn —
+   * để các bé nhìn thấy toàn bộ bài chứng minh cùng lúc. Chỉ áp dụng khi danh sách có vùng cuộn riêng (màn rộng).
+   */
+  function fit() {
+    const list = $('proof-list');
+    if (drag || !list.offsetParent) return;
+    list.style.removeProperty('--fit');
+    if (getComputedStyle(list).overflowY !== 'auto') return;
+    let f = 1;
+    while (list.scrollHeight > list.clientHeight + 1 && f > 0.62) {
+      f = Math.round((f - 0.03) * 100) / 100;
+      list.style.setProperty('--fit', f);
+    }
+  }
+
+  let fitRaf = 0;
+  window.addEventListener('resize', function () {
+    cancelAnimationFrame(fitRaf);
+    fitRaf = requestAnimationFrame(fit);
+  });
 
   function arrowBtn(dir, i, edge) {
     const b = document.createElement('button');
@@ -361,6 +384,8 @@ window.PS = window.PS || {};
       $('btn-proof-reveal').onclick = reveal;
       $('btn-proof-shuffle').onclick = shuffle;
       render();
+      // Phông chữ tải xong có thể đổi kích thước thẻ → tính lại cho vừa khung
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
     },
     /** Gọi mỗi khi mở màn hình để vẽ lại (giữ nguyên tiến độ đang làm). */
     show: function () { render(); }

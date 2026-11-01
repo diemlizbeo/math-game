@@ -1953,7 +1953,7 @@ html:has(body[data-phase="proof"]) {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.7fr);
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1.88fr);
   grid-template-rows: minmax(0, 1fr);
   align-items: stretch;
   gap: calc(var(--u) * 1.3);
@@ -2050,7 +2050,7 @@ html:has(body[data-phase="proof"]) {
 .proof-board {
   display: flex;
   flex-direction: column;
-  gap: var(--u);
+  gap: calc(var(--u) * 0.7);
 }
 
 .proof-board>* {
@@ -2067,60 +2067,57 @@ html:has(body[data-phase="proof"]) {
 
 .proof-board-title {
   margin: 0;
-  font-size: calc(var(--u) * 1.6);
+  font-size: calc(var(--u) * 1.45);
   font-weight: 900;
 }
 
 .proof-board .hint {
   margin: 0;
-  font-size: calc(var(--u) * 1.1);
+  font-size: calc(var(--u) * 1.05);
 }
 
-/* Kết quả kiểm tra: luôn chừa sẵn chỗ để thẻ không xê dịch; lúc chưa kiểm tra hiện dòng nhắc mờ */
+/* Kết quả kiểm tra: chỉ hiện sau khi bấm "Kiểm tra" (thẻ tự co lại cho vừa khung) */
 .proof-board .feedback,
 .proof-board .feedback.good,
 .proof-board .feedback.soft,
 .proof-board .feedback.info {
-  min-height: calc(var(--u) * 3.4);
+  min-height: calc(var(--u) * 2.6);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: calc(var(--u) * 1.35);
-  line-height: 1.35;
-  padding: calc(var(--u) * 0.6) calc(var(--u) * 1.1);
+  font-size: calc(var(--u) * 1.25);
+  line-height: 1.3;
+  padding: calc(var(--u) * 0.35) calc(var(--u) * 1.1);
   border-radius: calc(var(--u) * 0.75);
 }
 
 .proof-board .feedback:empty {
-  padding: 0 calc(var(--u) * 1.1);
-  background: #f7fbff;
-  border: 2px dashed #cfe3f7;
-  color: #6b83a3;
+  display: none;
 }
 
-.proof-board .feedback:empty::before {
-  content: "Sắp xếp xong, bấm “Kiểm tra” để xem kết quả.";
-  font-size: 0.82em;
-  font-weight: 700;
-}
-
-/* Danh sách thẻ: vùng cuộn riêng (chừa lề để thẻ đang kéo phóng nhẹ không bị cắt) */
+/*
+ * Danh sách thẻ: vùng cuộn riêng (chừa lề để thẻ đang kéo phóng nhẹ không bị cắt).
+ * Mọi kích thước bên trong tính theo em của cỡ chữ thẻ; proof.js giảm --fit (1 → 0.62) tới khi cả 5 thẻ
+ * nằm gọn trong khung, nên các bé luôn nhìn thấy toàn bộ bài chứng minh mà không phải cuộn.
+ */
 .proof-board>.proof-list {
   flex: 1 1 auto;
 }
 
 .proof-list {
+  --gap: 0.5em;
   list-style: none;
   min-height: 0;
   margin: 0 calc(var(--u) * -0.6);
-  padding: calc(var(--u) * 0.4) calc(var(--u) * 0.6) calc(var(--u) * 0.8);
+  padding: calc(var(--u) * 0.3) calc(var(--u) * 0.6) calc(var(--u) * 0.5);
   display: grid;
   align-content: start;
-  gap: calc(var(--u) * 0.9);
+  gap: var(--gap);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
+  font-size: calc(var(--u) * 1.4 * var(--fit, 1));
 }
 
 /* Một hàng = [số thứ tự] [thẻ] [nút ▲▼]. Đường ray dọc nối các số để thấy rõ đây là một chuỗi lập luận */
@@ -2128,18 +2125,18 @@ html:has(body[data-phase="proof"]) {
   position: relative;
   display: flex;
   align-items: center;
-  gap: calc(var(--u) * 1.05);
+  gap: 0.6em;
 }
 
 .step-row::before {
   content: "";
   position: absolute;
   z-index: 0;
-  left: calc(var(--u) * 1.5 - 2px);
+  left: calc(1em - 2px);
   width: 4px;
   border-radius: 2px;
   top: 0;
-  bottom: calc(var(--u) * -0.9);
+  bottom: calc(var(--gap) * -1);
   background: #d5e6f7;
 }
 
@@ -2161,14 +2158,13 @@ html:has(body[data-phase="proof"]) {
   flex: none;
   display: grid;
   place-items: center;
-  width: calc(var(--u) * 3);
-  height: calc(var(--u) * 3);
+  width: 2em;
+  height: 2em;
   border-radius: 50%;
   background: #fff;
   border: 3px solid #b9d6f2;
   color: var(--blue-dark);
   font-weight: 900;
-  font-size: calc(var(--u) * 1.5);
 }
 
 .step-card {
@@ -2178,15 +2174,14 @@ html:has(body[data-phase="proof"]) {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: calc(var(--u) * 1.1);
-  padding: calc(var(--u) * 0.8) calc(var(--u) * 1.3) calc(var(--u) * 0.8) calc(var(--u) * 1.1);
-  border-radius: calc(var(--u) * 0.95);
+  gap: 0.65em;
+  padding: 0.35em 0.9em 0.35em 0.6em;
+  border-radius: 0.6em;
   background: #fff;
   border: 3px solid #cfe3f7;
   box-shadow: 0 4px 0 #cfe3f7;
-  font-size: calc(var(--u) * 1.5);
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.4;
   cursor: grab;
   touch-action: pan-y;
   user-select: none;
@@ -2223,9 +2218,9 @@ html:has(body[data-phase="proof"]) {
   display: inline-grid;
   place-items: center;
   align-self: flex-start;
-  width: 1.7em;
-  height: 1.7em;
-  margin-top: 0.1em;
+  width: 1.6em;
+  height: 1.6em;
+  margin-top: 0.05em;
   border-radius: 0.45em;
   background: var(--blue);
   color: #fff;
@@ -2247,7 +2242,7 @@ html:has(body[data-phase="proof"]) {
 }
 
 .step-text p+p {
-  margin-top: calc(var(--u) * 0.2);
+  margin-top: 0.05em;
 }
 
 /* Ý con (dòng bắt đầu bằng "• "): thụt vào, dấu chấm tròn treo bên trái */
@@ -2277,8 +2272,8 @@ html:has(body[data-phase="proof"]) {
 /* Phân số (½, AM/MB…): tử và mẫu cỡ ngang chữ thường cho dễ đọc */
 .step-text .frac {
   font-size: 1em;
-  line-height: 1.1;
-  margin: 0.1em 0.2em;
+  line-height: 1.05;
+  margin: 0 0.2em;
 }
 
 /* Dấu ✓ / ✕ sau khi kiểm tra (không chỉ dựa vào màu) */
@@ -2380,7 +2375,7 @@ html:has(body[data-phase="proof"]) {
   flex: none;
   display: flex;
   flex-direction: column;
-  gap: calc(var(--u) * 0.35);
+  gap: 0.25em;
 }
 
 .step-arrow {
@@ -2388,13 +2383,16 @@ html:has(body[data-phase="proof"]) {
   display: grid;
   place-items: center;
   cursor: pointer;
-  width: calc(var(--u) * 3);
-  height: calc(var(--u) * 2.3);
-  border-radius: calc(var(--u) * 0.7);
+  /* cỡ chữ ▲▼ = 0.62 cỡ chữ thẻ; nút rộng ≈ 2.1em, cao ≈ 1.05em theo cỡ chữ thẻ */
+  font-size: 0.62em;
+  width: 3.4em;
+  height: 1.7em;
+  padding: 0;
+  border-radius: 0.7em;
   border: 2px solid #b9d6f2;
   background: #fff;
   color: var(--blue-dark);
-  font-size: calc(var(--u) * 1);
+  line-height: 1;
   box-shadow: 0 3px 0 #b9d6f2;
 }
 
@@ -2426,7 +2424,7 @@ html:has(body[data-phase="proof"]) {
   display: flex;
   justify-content: center;
   margin: 0 calc(var(--u) * -1.8) calc(var(--u) * -1.3);
-  padding: calc(var(--u) * 0.8) calc(var(--u) * 1.8) calc(var(--u) * 1);
+  padding: calc(var(--u) * 0.6) calc(var(--u) * 1.8) calc(var(--u) * 0.8);
   background: #fff;
   border-top: 2px solid #e3eefa;
   border-radius: 0 0 var(--radius) var(--radius);
@@ -2444,8 +2442,8 @@ html:has(body[data-phase="proof"]) {
 }
 
 .proof-board .btn-lg {
-  font-size: calc(var(--u) * 1.35);
-  padding: 0.65em 0.8em;
+  font-size: calc(var(--u) * 1.3);
+  padding: 0.55em 0.8em;
   white-space: nowrap;
 }
 
