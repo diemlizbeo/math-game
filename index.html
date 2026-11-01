@@ -4,27 +4,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Penguin Slide — Đua chim cánh cụt | Toán 8</title>
+  <title>Đường trung bình của tam giác | Toán 8</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body data-phase="setup">
+<body data-phase="home">
   <div class="snow" aria-hidden="true"></div>
 
-  <!-- ============ MÀN HÌNH CÀI ĐẶT ============ -->
-  <section id="screen-setup" class="screen" aria-labelledby="setup-title">
-    <!-- Ký hiệu toán học trôi nhẹ trên nền -->
-    <div class="math-float" aria-hidden="true">
-      <span style="--x:4%;--y:18%;--d:0s">π</span>
-      <span style="--x:12%;--y:72%;--d:-3s">√x</span>
-      <span style="--x:23%;--y:40%;--d:-6s">△</span>
-      <span style="--x:35%;--y:86%;--d:-1s">∠A</span>
-      <span style="--x:48%;--y:8%;--d:-4s">x²</span>
-      <span style="--x:58%;--y:92%;--d:-7s">÷</span>
-      <span style="--x:67%;--y:30%;--d:-2s">∥</span>
-      <span style="--x:78%;--y:80%;--d:-5s">½</span>
-      <span style="--x:88%;--y:14%;--d:-8s">×</span>
-      <span style="--x:95%;--y:55%;--d:-3.5s">=</span>
+  <!-- Ký hiệu toán học trôi nhẹ trên nền (chỉ hiện ở màn Trang chủ / Cài đặt) -->
+  <div class="math-float" aria-hidden="true">
+    <span style="--x:4%;--y:18%;--d:0s">π</span>
+    <span style="--x:12%;--y:72%;--d:-3s">√x</span>
+    <span style="--x:23%;--y:40%;--d:-6s">△</span>
+    <span style="--x:35%;--y:86%;--d:-1s">∠A</span>
+    <span style="--x:48%;--y:8%;--d:-4s">x²</span>
+    <span style="--x:58%;--y:92%;--d:-7s">÷</span>
+    <span style="--x:67%;--y:30%;--d:-2s">∥</span>
+    <span style="--x:78%;--y:80%;--d:-5s">½</span>
+    <span style="--x:88%;--y:14%;--d:-8s">×</span>
+    <span style="--x:95%;--y:55%;--d:-3.5s">=</span>
+  </div>
+
+  <!-- ============ TRANG CHỦ: chọn hoạt động ============ -->
+  <section id="screen-home" class="screen" aria-labelledby="home-title">
+    <div class="home-tools">
+      <button type="button" class="icon-btn" data-action="sound" title="Bật/tắt âm thanh"
+        aria-label="Bật/tắt âm thanh">🔊</button>
+      <button type="button" class="btn btn-blue btn-sm" data-action="fullscreen" title="Bật/tắt toàn màn hình">⛶ Toàn
+        màn hình</button>
+    </div>
+
+    <main class="home-hub">
+      <div class="board home-board">
+        <div class="board-text">
+          <p class="board-kicker">📐 TOÁN 8 · HÌNH HỌC</p>
+          <h1 id="home-title" class="board-title">Đường trung bình<br>của tam giác</h1>
+          <svg class="chalk-underline" viewBox="0 0 300 16" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M4 10 C 60 2, 120 15, 180 7 S 270 4, 296 9" />
+          </svg>
+          <p class="home-sub">Cùng sắp xếp các bước lập luận để hoàn thành bài chứng minh định lý đường trung bình
+            của tam giác.</p>
+          <div class="home-actions">
+            <button type="button" class="btn btn-green btn-xl" id="btn-mode-proof">🧩 CHỨNG MINH ĐỊNH LÝ</button>
+            <!-- Tạm ẩn phần Ôn tập tổng kết (đua chim cánh cụt + câu hỏi): bỏ thuộc tính hidden để mở lại -->
+            <button type="button" class="btn btn-purple btn-xl" id="btn-mode-review" hidden>🏁 ÔN TẬP TỔNG
+              KẾT</button>
+          </div>
+        </div>
+        <svg class="board-figure" viewBox="0 0 360 262" aria-hidden="true">
+          <path d="M90 30 L30 230 L330 230 Z" class="chalk" />
+          <path d="M60 130 L210 130 L180 230" class="chalk chalk-yellow" />
+          <path d="M68.3 78 L81.7 82 M38.3 178 L51.7 182" class="chalk chalk-tick" />
+          <path d="M152.2 72.7 L143.2 83.5 M156.8 76.5 L147.8 87.3 M272.2 172.7 L263.2 183.5 M276.8 176.5 L267.8 187.3"
+            class="chalk chalk-tick" />
+          <path d="M100 225 L110 235 M110 225 L100 235 M250 225 L260 235 M260 225 L250 235" class="chalk chalk-tick" />
+          <circle cx="60" cy="130" r="5" class="chalk-dot" />
+          <circle cx="210" cy="130" r="5" class="chalk-dot" />
+          <circle cx="180" cy="230" r="5" class="chalk-dot" />
+          <text x="82" y="20">A</text>
+          <text x="8" y="252">B</text>
+          <text x="334" y="252">C</text>
+          <text x="32" y="136">M</text>
+          <text x="218" y="128">N</text>
+          <text x="172" y="258">P</text>
+        </svg>
+      </div>
+    </main>
+  </section>
+
+  <!-- ============ CHỨNG MINH ĐỊNH LÝ: sắp xếp thẻ lập luận ============ -->
+  <section id="screen-proof" class="screen" hidden aria-labelledby="proof-title">
+    <header class="topbar">
+      <div class="logo-small">📐 TOÁN 8</div>
+      <h1 class="topbar-title" id="proof-title">🧩 Chứng minh định lý</h1>
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" data-action="sound" title="Bật/tắt âm thanh"
+          aria-label="Bật/tắt âm thanh">🔊</button>
+        <button type="button" class="icon-btn" data-action="fullscreen" title="Toàn màn hình"
+          aria-label="Toàn màn hình">⛶</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-action="home">🏠 Trang chủ</button>
+      </div>
+    </header>
+
+    <div class="proof-layout">
+      <article class="card proof-sheet">
+        <h2 class="card-title">📄 Phiếu học tập</h2>
+        <p class="proof-task" id="proof-task"></p>
+        <div class="theorem">
+          <div class="theorem-row">
+            <svg class="proof-figure" viewBox="0 0 360 262" role="img"
+              aria-label="Tam giác ABC; M, N, P lần lượt là trung điểm của AB, AC, BC">
+              <path d="M90 30 L30 230 L330 230 Z" class="fig-line" />
+              <path d="M60 130 L210 130 L180 230" class="fig-mid" />
+              <path d="M68.3 78 L81.7 82 M38.3 178 L51.7 182" class="fig-tick" />
+              <path
+                d="M152.2 72.7 L143.2 83.5 M156.8 76.5 L147.8 87.3 M272.2 172.7 L263.2 183.5 M276.8 176.5 L267.8 187.3"
+                class="fig-tick" />
+              <path d="M100 225 L110 235 M110 225 L100 235 M250 225 L260 235 M260 225 L250 235" class="fig-tick" />
+              <circle cx="60" cy="130" r="4" class="fig-dot" />
+              <circle cx="210" cy="130" r="4" class="fig-dot" />
+              <circle cx="180" cy="230" r="4" class="fig-dot" />
+              <text x="84" y="22">A</text>
+              <text x="12" y="248">B</text>
+              <text x="336" y="248">C</text>
+              <text x="38" y="134">M</text>
+              <text x="218" y="128">N</text>
+              <text x="173" y="254">P</text>
+            </svg>
+          </div>
+        </div>
+      </article>
+
+      <section class="card proof-board" aria-labelledby="proof-board-title">
+        <h2 class="proof-board-title" id="proof-board-title">Thẻ lập luận – chọn vị trí để sắp xếp</h2>
+        <p class="hint">Kéo thả thẻ hoặc bấm ▲ ▼ để đổi vị trí, rồi bấm <strong>Kiểm tra</strong>.</p>
+        <ol class="proof-list" id="proof-list" aria-label="Các bước chứng minh"></ol>
+        <div class="feedback" id="proof-feedback" role="status" aria-live="polite"></div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-green btn-lg" id="btn-proof-check">✔ Kiểm tra</button>
+          <button type="button" class="btn btn-ghost btn-lg" id="btn-proof-shuffle">🔀 Xáo trộn lại</button>
+          <button type="button" class="btn btn-yellow btn-lg" id="btn-proof-reveal">💡 Xem đáp án</button>
+        </div>
+      </section>
+
+      <section class="card proof-solution" id="proof-solution" hidden aria-labelledby="proof-solution-title">
+        <h2 class="card-title" id="proof-solution-title">💡 Bài chứng minh hoàn chỉnh</h2>
+        <table class="proof-table">
+          <thead>
+            <tr>
+              <th scope="col">Bước</th>
+              <th scope="col">Lập luận</th>
+            </tr>
+          </thead>
+          <tbody id="proof-table-body"></tbody>
+        </table>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ MÀN HÌNH CÀI ĐẶT (Ôn tập tổng kết) ============ -->
+  <section id="screen-setup" class="screen" hidden aria-labelledby="setup-title">
+    <div class="home-back">
+      <button type="button" class="btn btn-ghost btn-sm" data-action="home">🏠 Trang chủ</button>
     </div>
 
     <div class="home-tools">
@@ -268,6 +389,7 @@
   <script src="js/picker.js"></script>
   <script src="js/questions.js"></script>
   <script src="js/sound.js"></script>
+  <script src="js/proof.js"></script>
   <script src="js/race.js"></script>
   <script src="js/app.js"></script>
 </body>

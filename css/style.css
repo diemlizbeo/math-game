@@ -711,6 +711,141 @@ textarea:focus { outline: 3px solid #ffd54f; border-color: var(--blue); }
 .summary { list-style: none; padding: 0; margin: 16px 0 22px; display: grid; gap: 8px; font-size: 1.25rem; }
 .summary li { background: #f0f8ff; border-radius: 12px; padding: 10px 16px; }
 
+/* ------------------------------------------------------------ trang chủ: chọn hoạt động */
+.math-float { display: none; }
+body[data-phase="home"] .math-float, body[data-phase="setup"] .math-float { display: block; }
+
+/* Trang chủ: bảng đen chủ đề bài học + nút chọn hoạt động */
+#screen-home {
+  max-width: 1400px; margin: 0 auto; padding: 72px 28px clamp(36px, 7vh, 72px);
+  display: flex; flex-direction: column;
+}
+@media (min-width: 901px) and (min-height: 620px) {
+  #screen-home:not([hidden]) { height: 100vh; }
+}
+.home-hub { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.home-board { grid-template-columns: 1.4fr 1fr; padding: clamp(28px, 5vh, 56px) clamp(32px, 4vw, 64px); }
+.home-board .board-kicker { font-size: clamp(1rem, 1.3vw, 1.3rem); }
+/* nowrap: giữ "Đường trung bình" trên một dòng (đã có <br> ngắt dòng) */
+.home-board .board-title { font-size: clamp(2.4rem, min(4.2vw, 8vh), 5.2rem); white-space: nowrap; }
+.home-sub {
+  margin: 0 0 clamp(22px, 4vh, 40px); max-width: 30em;
+  font-size: clamp(1.15rem, min(1.7vw, 3vh), 1.75rem); font-weight: 600; line-height: 1.5;
+  color: rgba(244, 247, 242, 0.92);
+}
+.home-actions { display: flex; flex-wrap: wrap; gap: 18px; }
+.home-board .btn-xl { font-size: clamp(1.35rem, min(2.1vw, 3.6vh), 2rem); }
+.home-board .board-figure { max-height: 620px; }
+.home-board .board-figure text { font-size: 24px; }
+@media (max-width: 900px) { .home-board { grid-template-columns: 1fr; } }
+
+.home-back { position: absolute; top: 12px; left: 24px; z-index: 2; }
+
+/* ------------------------------------------------------------ chứng minh định lý */
+/*
+ * Mọi kích thước của màn chứng minh tính theo một đơn vị --u = min(1vw, 1.75vh):
+ * cả bố cục phóng to/thu nhỏ đồng đều nên tỉ lệ giữ nguyên dù ở cửa sổ thường hay toàn màn hình
+ * (mốc thiết kế: màn 1920×1080 ⇒ --u ≈ 19px).
+ */
+#screen-proof { --u: max(8px, min(1vw, 1.68vh)); }
+/* Luôn chừa chỗ cho thanh cuộn: khi lời nhắn/lời giải làm trang dài ra, bề rộng không đổi nên chữ không nhảy dòng */
+html:has(body[data-phase="proof"]) { scrollbar-gutter: stable; }
+.topbar-title { margin: 0 0 0 8px; font-size: clamp(1.35rem, 1.8vw, 1.9rem); font-weight: 900; color: var(--navy); }
+.proof-layout {
+  /* Cột thẻ chỉ rộng vừa câu dài nhất (tối đa 66%); phần còn lại dành cho phiếu + hình vẽ */
+  /* stretch: hai khung cao bằng nhau */
+  display: grid; grid-template-columns: minmax(0, 1fr) fit-content(66%); gap: calc(var(--u) * 1.9); align-items: stretch;
+  margin: 0 auto; padding: calc(var(--u) * 1.25) calc(var(--u) * 1.2) calc(var(--u) * 1.4);
+}
+@media (max-width: 1000px) { .proof-layout { grid-template-columns: 1fr; } }
+.proof-layout > .card { padding: calc(var(--u) * 1.45) calc(var(--u) * 1.8); }
+.proof-layout .card-title {
+  font-size: calc(var(--u) * 1.35); margin-bottom: calc(var(--u) * 1.1);
+  padding: calc(var(--u) * 0.3) calc(var(--u) * 0.85);
+}
+.proof-task { margin: 0 0 calc(var(--u) * 1.45); font-size: calc(var(--u) * 1.75); font-weight: 700; line-height: 1.5; }
+/* Khung hình giãn hết phần còn lại của phiếu, hình nằm giữa khung */
+.proof-sheet { display: flex; flex-direction: column; }
+.proof-sheet .card-title { align-self: flex-start; }
+.theorem {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  background: #f4f9ff; border: 2px solid #dbeafe; border-radius: calc(var(--u) * 0.95); padding: calc(var(--u) * 1.1);
+}
+.theorem-row { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.proof-figure { width: 100%; height: auto; max-height: calc(var(--u) * 32); }
+.proof-figure .fig-line { fill: none; stroke: var(--navy); stroke-width: 3; stroke-linejoin: round; }
+.proof-figure .fig-mid { fill: none; stroke: var(--blue); stroke-width: 3; stroke-linejoin: round; }
+.proof-figure .fig-tick { fill: none; stroke: var(--red); stroke-width: 2.2; stroke-linecap: round; }
+.proof-figure .fig-dot { fill: var(--navy); }
+.proof-figure text { fill: var(--navy); font: 700 19px "Segoe UI", sans-serif; }
+
+.proof-board { display: flex; flex-direction: column; gap: var(--u); }
+.proof-board-title { margin: 0; font-size: calc(var(--u) * 1.75); font-weight: 900; }
+.proof-board .hint { margin: 0; font-size: calc(var(--u) * 1.1); }
+.proof-list { list-style: none; margin: calc(var(--u) * 0.2) 0; padding: 0; display: grid; gap: calc(var(--u) * 1.35); }
+.step-row { display: flex; align-items: center; gap: calc(var(--u) * 1.05); }
+.step-num {
+  flex: none; display: grid; place-items: center;
+  width: calc(var(--u) * 3.2); height: calc(var(--u) * 3.2); border-radius: calc(var(--u) * 0.75);
+  background: #eef4fb; color: var(--navy); font-weight: 900; font-size: calc(var(--u) * 1.75);
+}
+.step-card {
+  flex: 1; min-width: 0; min-height: calc(var(--u) * 4.5);
+  display: flex; align-items: center; gap: calc(var(--u) * 1.15);
+  padding: calc(var(--u) * 0.85) calc(var(--u) * 1.35); border-radius: calc(var(--u) * 0.95);
+  background: #fff; border: 3px solid #cfe3f7; box-shadow: 0 4px 0 #cfe3f7;
+  font-size: calc(var(--u) * 1.85); font-weight: 700; line-height: 1.35;
+  cursor: grab; touch-action: none; user-select: none;
+  transition: transform 0.18s, background 0.2s, border-color 0.2s;
+}
+.step-card:hover { background: #f5faff; }
+.step-letter {
+  flex: none; display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 0.4em;
+  background: var(--blue); color: #fff; font-weight: 900; font-size: 0.95em;
+}
+.step-card.dragging {
+  position: relative; z-index: 2; cursor: grabbing; transition: none;
+  border-color: var(--blue); background: #eaf5ff;
+  box-shadow: 0 14px 28px rgba(13, 71, 161, 0.28);
+}
+.proof-list.sorting .step-card:not(.dragging) { pointer-events: none; }
+.step-row.ok .step-card { background: #d6f8df; border-color: var(--green); box-shadow: 0 4px 0 #1d8a3c; }
+.step-row.ok .step-letter { background: var(--green); }
+.step-row.ok .step-num { background: #c8f2d3; color: #146c2e; }
+.step-row.bad .step-card { background: #fff1e8; border-color: #ff8a65; box-shadow: 0 4px 0 #e0623b; }
+.step-row.bad .step-letter { background: #f4511e; }
+.proof-list.solved .step-card { cursor: default; }
+.step-arrows { flex: none; display: flex; flex-direction: column; gap: calc(var(--u) * 0.3); }
+.step-arrow {
+  appearance: none; width: calc(var(--u) * 2.7); height: calc(var(--u) * 2.1); border-radius: 999px; cursor: pointer;
+  border: 2px solid #b9d6f2; background: #fff; color: var(--blue-dark); font-size: calc(var(--u) * 0.9);
+}
+.step-arrow:hover:not(:disabled) { background: #eaf5ff; }
+.step-arrow:disabled { opacity: 0.3; cursor: default; }
+.step-arrow:focus-visible { outline: 4px solid #ffd54f; outline-offset: 2px; }
+/* width 0 + min-width 100%: lời nhắn không làm cột thẻ rộng ra, chỉ xuống dòng theo bề rộng thẻ */
+/* Luôn chừa sẵn chỗ cho một dòng lời nhắn (kể cả khi chưa kiểm tra) để hai khung không đổi chiều cao */
+.proof-board .feedback,
+.proof-board .feedback.good, .proof-board .feedback.soft, .proof-board .feedback.info {
+  width: 0; min-width: 100%; min-height: calc(var(--u) * 3.45);
+  display: flex; align-items: center;
+  font-size: calc(var(--u) * 1.5); line-height: 1.35;
+  padding: calc(var(--u) * 0.7) calc(var(--u) * 1.15); border-radius: calc(var(--u) * 0.75);
+}
+/* Nút luôn nằm ở đáy khung; lời nhắn hiện vào khoảng trống phía trên nên các thẻ không bị xê dịch */
+.proof-board .btn-row { justify-content: flex-start; gap: calc(var(--u) * 0.85); margin-top: auto; padding-top: calc(var(--u) * 0.3); }
+.proof-board .btn-lg { font-size: calc(var(--u) * 1.35); }
+
+.proof-solution { grid-column: 1 / -1; }
+.proof-table { width: 100%; border-collapse: collapse; background: #fff; font-size: calc(var(--u) * 1.85); }
+.proof-table th, .proof-table td {
+  border: 2px solid #8cc4f5; padding: var(--u) calc(var(--u) * 1.55); text-align: left; vertical-align: top;
+}
+.proof-table thead th { background: #e1f0ff; color: var(--blue-dark); font-weight: 900; }
+.proof-table tbody th { width: 3.6em; text-align: center; font-size: 1.15em; font-weight: 900; color: var(--blue-dark); }
+.proof-table td .step-letter { float: right; margin-left: 12px; background: var(--green); }
+.proof-table td p { margin: 6px 0; line-height: 1.55; }
+
 /* ------------------------------------------------------------ hộp thoại + toast */
 .modal {
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;

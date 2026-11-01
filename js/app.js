@@ -1,5 +1,6 @@
 /*
- * Điều phối ứng dụng: máy trạng thái setup → ready → countdown → racing → result (→ ready …).
+ * Điều phối ứng dụng: home → proof (chứng minh định lý)
+ *                     home → setup → ready → countdown → racing → result (→ ready …) (ôn tập tổng kết).
  * Tên học sinh luôn được hiển thị bằng textContent / canvas fillText (không chèn HTML).
  */
 (function () {
@@ -36,11 +37,11 @@
   function setPhase(phase) {
     state.phase = phase;
     document.body.dataset.phase = phase;
-    const screen = phase === 'setup' ? 'setup'
+    const screen = phase === 'home' || phase === 'proof' || phase === 'setup' ? phase
       : phase === 'ready' ? 'quiz'
       : phase === 'finished' ? 'finish'
       : 'race';
-    ['setup', 'quiz', 'race', 'finish'].forEach(function (s) {
+    ['home', 'proof', 'setup', 'quiz', 'race', 'finish'].forEach(function (s) {
       $('screen-' + s).hidden = s !== screen;
     });
   }
@@ -649,6 +650,27 @@
     updateListStatus();
   }
 
+  // ------------------------------------------------------------------ trang chủ + chứng minh định lý
+  function goHome() {
+    if (state.phase !== 'setup' && state.phase !== 'proof') return;
+    setPhase('home');
+    window.scrollTo(0, 0);
+  }
+
+  function openProof() {
+    if (state.phase !== 'home') return;
+    PS.Sound.unlock();
+    setPhase('proof');
+    PS.ProofGame.show();
+    window.scrollTo(0, 0);
+  }
+
+  function openReview() {
+    if (state.phase !== 'home') return;
+    backToSetup();
+    window.scrollTo(0, 0);
+  }
+
   // ------------------------------------------------------------------ hoàn thành
   function showFinish() {
     const ul = $('summary');
@@ -776,6 +798,11 @@
     };
     $('btn-finish-setup').onclick = function () { state.inProgress = false; backToSetup(); };
 
+    $('btn-mode-proof').onclick = openProof;
+    $('btn-mode-review').onclick = openReview;
+    document.querySelectorAll('[data-action="home"]').forEach(function (b) { b.onclick = goHome; });
+    PS.ProofGame.init();
+
     document.querySelectorAll('[data-action="sound"]').forEach(function (b) { b.onclick = toggleSound; });
     document.querySelectorAll('[data-action="fullscreen"]').forEach(function (b) { b.onclick = toggleFullscreen; });
     document.addEventListener('fullscreenchange', function () {
@@ -803,7 +830,7 @@
     applySettingsUI();
     updateListStatus();
     PS.drawAvatar($('hero-penguin'), PS.COLORS[0], { happy: false });
-    setPhase('setup');
+    setPhase('home');
   }
 
   init();
