@@ -33,15 +33,15 @@ window.PS = window.PS || {};
       {
         id: 'A',
         lines: [
-          'Suy ra: ' + m('MN = BP') + ' (tính chất).',
-          'và ' + m('BP = ' + half + 'BC') + ' (P là trung điểm của BC).'
+          'Suy ra: ' + m('MN = BP') + ' (tính chất)',
+          'mà ' + m('BP = ' + half + 'BC') + ' (P là trung điểm của BC).'
         ]
       },
       {
         id: 'B',
         lines: [
-          'Lấy P là trung điểm của BC.',
-          'Chứng minh tương tự, ta có: ' + m('NP // AB') + '.'
+          'Lấy điểm P là trung điểm của BC.',
+          'Chứng minh tương tự ta có: ' + m('NP // AB') + '.'
         ]
       },
       {
@@ -51,18 +51,19 @@ window.PS = window.PS || {};
       {
         id: 'D',
         lines: [
-          'Xét tam giác ABC có M, N lần lượt là trung điểm của AB, AC (gt).',
-          'Suy ra: ' + m('AM = MB') + ', ' + m('AN = NC') + ' (tính chất)',
-          'nên ' + m(frac('AM', 'MB') + ' = ' + frac('AN', 'NC') + ' (= 1)') + '.',
-          'Vậy ' + m('MN // BC') + ' (định lý Thalès đảo).'
+          'Xét tam giác ABC có:',
+          '• M là trung điểm của AB (GT) nên ' + m('AM = ' + half + 'AB') + ', suy ra ' + m(frac('AM', 'AB') + ' = ' + half),
+          '• N là trung điểm của AC (GT) nên ' + m('AN = ' + half + 'AC') + ', suy ra ' + m(frac('AN', 'AC') + ' = ' + half),
+          'Do đó ' + m(frac('AM', 'AB') + ' = ' + frac('AN', 'AC') + ' (= ' + half + ')'),
+          'Suy ra ' + m('MN // BC') + ' (theo định lý Thales đảo).'
         ]
       },
       {
         id: 'E',
         lines: [
           'Xét tứ giác MNPB có:',
-          '• ' + m('MN // BP') + ' (chứng minh trên)',
-          '• ' + m('NP // MB') + ' (chứng minh trên)',
+          '• ' + m('MN // BP') + ' (do ' + m('MN // BC') + ')',
+          '• ' + m('NP // MB') + ' (do ' + m('NP // AB') + ')',
           'Suy ra: MNPB là hình bình hành (dấu hiệu nhận biết).'
         ]
       }
