@@ -1,16 +1,17 @@
 /*
  * Phần "Chứng minh định lý": sắp xếp các thẻ lập luận theo đúng trình tự chứng minh
  * định lý đường trung bình của tam giác (lấy từ "phiếu trò chơi.docx").
- * Đổi chỗ thẻ bằng nút ▲/▼ hoặc kéo thả (chuột/cảm ứng).
+ * Đổi chỗ thẻ bằng nút ▲/▼, kéo thả (chuột/cảm ứng), hoặc bấm chọn thẻ rồi bấm số thứ tự để chuyển thẻ tới đó.
  * Mỗi thẻ là một bước chứng minh đầy đủ (lines: từng dòng lập luận, HTML do giáo viên soạn — nội dung tin cậy).
  * Màn hình rộng: danh sách thẻ cuộn bên trong khung riêng (#proof-list), phần còn lại của bố cục đứng yên.
  *
  * Cấu trúc một hàng (render):
  *   li.step-row [.ok | .bad]
- *     span.step-num                 số thứ tự vị trí (1…5) — nằm trên "đường ray" nối các bước
- *     div.step-card
+ *     button.step-num [.target]     số thứ tự vị trí (1…5) — nằm trên "đường ray" nối các bước;
+ *                                   khi đã chọn một thẻ, bấm số để chuyển thẻ đó tới vị trí này
+ *     div.step-card [.selected]     bấm để chọn; kéo để đổi chỗ (cảm ứng: nhấn giữ thân thẻ rồi kéo)
  *       span.step-letter            tên thẻ (A…E) để cả lớp gọi tên khi thảo luận;
- *                                   trên cảm ứng chỉ kéo được từ đây để ngón tay vẫn cuộn được danh sách
+ *                                   trên cảm ứng kéo được ngay từ đây, không cần nhấn giữ
  *       div.step-text               nội dung lập luận
  *       span.step-status            ✓ / ✕ sau khi kiểm tra (không chỉ dựa vào màu)
  *     div.step-arrows               nút ▲ ▼
@@ -79,7 +80,8 @@ window.PS = window.PS || {};
     marks: null, // sau khi kiểm tra: mảng true/false theo từng vị trí
     solved: false,
     revealed: false, // true nếu giáo viên bấm "Xem đáp án"
-    tries: 0
+    tries: 0,
+    selected: null // id thẻ đang được chọn (bấm thẻ rồi bấm số thứ tự để chuyển thẻ tới đó)
   };
   let drag = null;
 
@@ -109,12 +111,23 @@ window.PS = window.PS || {};
       li.className = 'step-row';
       if (st.marks) li.classList.add(st.marks[i] ? 'ok' : 'bad');
 
-      const num = document.createElement('span');
+      // Số thứ tự là nút: đã chọn một thẻ thì bấm số để chuyển thẻ đó tới vị trí này
+      const num = document.createElement('button');
+      num.type = 'button';
       num.className = 'step-num';
       num.textContent = i + 1;
+      num.disabled = st.solved;
+      if (st.selected && !st.solved) {
+        num.classList.add('target');
+        num.setAttribute('aria-label', 'Chuyển thẻ ' + st.selected + ' tới vị trí ' + (i + 1));
+      } else {
+        num.setAttribute('aria-label', 'Vị trí ' + (i + 1) + ' — chọn một thẻ trước rồi bấm số để chuyển thẻ tới đây');
+      }
+      num.onclick = function () { placeAt(i); };
 
       const card = document.createElement('div');
       card.className = 'step-card';
+      if (st.selected === id) card.classList.add('selected');
 
       const letter = document.createElement('span');
       letter.className = 'step-letter';
@@ -144,11 +157,23 @@ window.PS = window.PS || {};
       }
 
       if (!st.solved) {
-        card.title = 'Kéo thả để đổi vị trí';
+        card.title = 'Kéo thả để đổi vị trí, hoặc bấm chọn thẻ rồi bấm số thứ tự';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-pressed', st.selected === id ? 'true' : 'false');
+        card.setAttribute('aria-label', 'Thẻ ' + id + (st.selected === id ? ' (đang chọn)' : ''));
         card.addEventListener('pointerdown', onPointerDown);
         card.addEventListener('pointermove', onPointerMove);
         card.addEventListener('pointerup', onPointerUp);
         card.addEventListener('pointercancel', onPointerUp);
+        // Đang kéo trên cảm ứng: chặn trình duyệt cuộn trang (cần listener không passive)
+        card.addEventListener('touchmove', onTouchMove, { passive: false });
+        // Nhấn giữ trên điện thoại không bật menu ngữ cảnh / chọn chữ
+        card.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+        card.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSelect(id); }
+          else if (e.key === 'Escape' && st.selected) { e.preventDefault(); toggleSelect(st.selected); }
+        });
       }
 
       const arrows = document.createElement('div');
@@ -226,8 +251,40 @@ window.PS = window.PS || {};
     if (btn) btn.focus();
   }
 
+  /** Bấm vào thẻ: chọn thẻ đó (bấm lại để bỏ chọn). Sau đó bấm số thứ tự để chuyển thẻ tới vị trí ấy. */
+  function toggleSelect(id) {
+    if (st.solved) return;
+    st.selected = st.selected === id ? null : id;
+    PS.Sound.tick();
+    render();
+    focusCard(id);
+  }
+
+  /** Chuyển thẻ đang chọn tới vị trí i (các thẻ khác dồn lên/xuống, giữ nguyên thứ tự). */
+  function placeAt(i) {
+    if (st.solved || !st.selected) return;
+    const id = st.selected;
+    const from = st.order.indexOf(id);
+    st.selected = null;
+    if (from !== i) {
+      st.order.splice(from, 1);
+      st.order.splice(i, 0, id);
+      afterReorder();
+    }
+    PS.Sound.tick();
+    render();
+    focusCard(id);
+  }
+
+  function focusCard(id) {
+    const row = $('proof-list').children[st.order.indexOf(id)];
+    const card = row && row.querySelector('.step-card');
+    if (card && card.tabIndex >= 0) card.focus({ preventScroll: true });
+  }
+
   function check() {
     if (st.solved) return;
+    st.selected = null;
     st.tries++;
     st.marks = st.order.map(function (id, i) { return id === DATA.answer[i]; });
     const n = st.marks.filter(Boolean).length;
@@ -246,6 +303,7 @@ window.PS = window.PS || {};
   function reveal() {
     if (st.solved) return;
     st.order = DATA.answer.slice();
+    st.selected = null;
     st.marks = st.order.map(function () { return true; });
     st.solved = true;
     st.revealed = true;
@@ -256,6 +314,7 @@ window.PS = window.PS || {};
 
   function shuffle() {
     st.order = shuffled();
+    st.selected = null;
     st.solved = false;
     st.revealed = false;
     st.tries = 0;
@@ -279,32 +338,67 @@ window.PS = window.PS || {};
     return drag && drag.scroller ? drag.scroller.scrollTop : window.scrollY;
   }
 
+  // Cảm ứng / bút: chạm ô chữ cái (A…E) thì kéo ngay; chạm thân thẻ thì phải giữ yên HOLD_MS mới kéo,
+  // để vuốt nhanh trên thẻ vẫn cuộn được trang. Chạm rồi thả (không kéo) = chọn thẻ.
+  const HOLD_MS = 250;
+  const SLOP = 10; // px: ngón tay dịch quá mức này trước khi đủ thời gian giữ → coi là cuộn trang
+
   function onPointerDown(e) {
     if (st.solved || drag || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    // Cảm ứng / bút: chỉ kéo từ ô chữ cái (A…E) để ngón tay vẫn cuộn được khi chạm vào thân thẻ
-    if (e.pointerType !== 'mouse' && !e.target.closest('.step-letter')) return;
     const cards = Array.prototype.slice.call(document.querySelectorAll('#proof-list .step-card'));
     const from = cards.indexOf(e.currentTarget);
     if (from === -1) return;
+    drag = {
+      el: e.currentTarget, cards: cards, from: from, to: from, pointerId: e.pointerId,
+      downX: e.clientX, downY: e.clientY, clientY: e.clientY,
+      armed: false, moved: false, timer: 0, raf: 0
+    };
+    if (e.pointerType === 'mouse' || e.target.closest('.step-letter')) {
+      arm();
+    } else {
+      drag.timer = setTimeout(function () {
+        if (!drag) return;
+        arm();
+        drag.el.classList.add('dragging'); // "nhấc" thẻ lên để biết đã có thể kéo
+        if (navigator.vibrate) navigator.vibrate(15);
+      }, HOLD_MS);
+    }
+  }
+
+  /** Bắt đầu chế độ kéo: đo vị trí các thẻ tại thời điểm này. */
+  function arm() {
     const scroller = getScroller();
     const sy = scroller ? scroller.scrollTop : window.scrollY;
-    const rects = cards.map(function (c) {
+    const rects = drag.cards.map(function (c) {
       const r = c.getBoundingClientRect();
       return { top: r.top + sy, bottom: r.bottom + sy, height: r.height };
     });
     // Khoảng dịch chuyển của các thẻ bị đẩy = chiều cao thẻ kéo + khoảng cách giữa hai hàng
     const gap = rects.length > 1 ? rects[1].top - rects[0].bottom : 0;
-    drag = {
-      el: e.currentTarget, cards: cards, rects: rects, from: from, to: from, scroller: scroller,
-      startY: e.clientY + sy, clientY: e.clientY, pointerId: e.pointerId, moved: false,
-      shift: rects[from].height + gap, raf: 0
-    };
-    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* con trỏ không hợp lệ: vẫn kéo được trong thẻ */ }
+    drag.armed = true;
+    drag.scroller = scroller;
+    drag.rects = rects;
+    drag.startY = drag.clientY + sy;
+    drag.shift = rects[drag.from].height + gap;
+    try { drag.el.setPointerCapture(drag.pointerId); } catch (err) { /* con trỏ không hợp lệ: vẫn kéo được trong thẻ */ }
+  }
+
+  /** Đang kéo trên cảm ứng: không để trình duyệt cuộn trang (nếu không sẽ phát pointercancel và mất thao tác kéo). */
+  function onTouchMove(e) {
+    if (drag && drag.armed && e.cancelable) e.preventDefault();
   }
 
   function onPointerMove(e) {
     if (!drag || e.pointerId !== drag.pointerId) return;
     drag.clientY = e.clientY;
+    if (!drag.armed) {
+      // Chưa giữ đủ lâu mà ngón tay đã trượt: người dùng đang cuộn trang → bỏ thao tác
+      if (Math.abs(e.clientX - drag.downX) > SLOP || Math.abs(e.clientY - drag.downY) > SLOP) {
+        clearTimeout(drag.timer);
+        drag = null;
+      }
+      return;
+    }
     if (!drag.moved && Math.abs(e.clientY + scrollPos() - drag.startY) < 6) return;
     if (!drag.moved) {
       drag.moved = true;
@@ -365,11 +459,18 @@ window.PS = window.PS || {};
     if (!drag || e.pointerId !== drag.pointerId) return;
     const d = drag;
     drag = null;
+    clearTimeout(d.timer);
     cancelAnimationFrame(d.raf);
     $('proof-list').classList.remove('sorting');
-    if (e.type === 'pointerup' && d.moved && d.to !== d.from) {
+    if (e.type === 'pointerup' && !d.moved) {
+      // Bấm / chạm rồi thả mà không kéo: chọn (hoặc bỏ chọn) thẻ
+      toggleSelect(st.order[d.from]);
+      return;
+    }
+    if (e.type === 'pointerup' && d.to !== d.from) {
       const id = st.order.splice(d.from, 1)[0];
       st.order.splice(d.to, 0, id);
+      st.selected = null;
       afterReorder();
       PS.Sound.tick();
     }
